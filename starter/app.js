@@ -17,6 +17,8 @@ const users = require('./users.json');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const{ verifyCredential, extractUserInfo} = require('./lib/vc-verify')
+
 // =============================================================================
 // Middleware Configuration
 // =============================================================================
@@ -131,6 +133,17 @@ passport.deserializeUser((sessionUser, done) => {
       picture: sessionUser.picture,
       googleId: sessionUser.googleId,
       authMethod: 'google'
+    });
+
+  } else if(sessionUser.authMethod === 'vc'){
+    done(null, {
+      id: sessionUser.id,
+      username: sessionUser.username ||sessionUser.id,
+      displayName: sessionUser.displayName ||'Utilizador VC',
+      email:sessionUser.email,
+      vcIssuer: sessionUser.vcIssuer,
+      vcType: sessionUser.vcType,
+      authMethod:'vc'
     });
 
   } else {
@@ -360,11 +373,44 @@ app.get('/login/google/callback',
 );
 
 // =============================================================================
-// TODO: Add Verifiable Credential Routes Here (Assignment 4)
+// Verifiable Credential Routes Here (Assignment 4)
 // =============================================================================
-//
-// You will add VC authentication in Assignment 4.
-// Routes needed: GET /login/vc, POST /login/vc
+
+// Página de login com VC
+app.get('/login/vc', (req, res)=> {
+  res.render('vc-login', { error: req.query.error});
+});
+// Processar submissão de VC
+app.post('/login/vc', (req, res) =>{
+  try{
+    // Analisar a credencial submetida
+    let credential;
+    try{
+      credential =JSON.parse(req.body.credential);
+    }catch (e){
+      return res.redirect('/login/vc?error=invalid_json');
+    }
+    //Verificar a credencial
+    const result = verifyCredential(credential);
+    if(!result.verified){
+      console.log('Verificação de VC falhou:',result.error);
+      return res.redirect('/login/vc?error=' +encodeURIComponent(result.error));
+    }
+    //Extrair informação do utilizador
+    const user = extractUserInfo(credential);
+    //Fazer login do utilizador
+    req.login(user, (err)=>{
+      if (err){
+        console.error('Erro de login:', err);
+        return res.redirect('/login/vc?error=login_failed');
+      }
+      res.redirect('/profile');
+    });
+  } catch(e){
+    console.error('Erro de processamento de VC:',e);
+    res.redirect('/login/vc?error=processing_error');
+  }
+});
 
 // =============================================================================
 // Routes - Protected

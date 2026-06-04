@@ -1,0 +1,84 @@
+<%- include('layout', {
+  body: `
+<div class="card">
+  <h1>Login com Verifiable Credential</h1>
+
+  ${
+    typeof error !== 'undefined' && error
+      ? `
+  <div class="alert alert-error">
+    ${
+      error === 'invalid_json'
+        ? 'Formato de credencial inválido (JSON inválido)'
+        : error === 'login_failed'
+        ? 'Login falhou após verificação'
+        : error
+    }
+  </div>
+  `
+      : ''
+  }
+
+  <div class="info-box">
+    <p><strong>Instruções:</strong></p>
+
+    <ol>
+      <li>Cole o JSON da sua Verifiable Credential abaixo</li>
+      <li>Clique em "Verificar e Login"</li>
+      <li>O sistema vai verificar a credencial e autenticá-lo</li>
+    </ol>
+  </div>
+
+  <form action="/login/vc" method="POST">
+    <div class="form-group">
+      <label for="credential">
+        Verifiable Credential (JSON)
+      </label>
+
+      <textarea
+        id="credential"
+        name="credential"
+        rows="15"
+        style="font-family: monospace; width: 100%;"
+        placeholder='Cole o JSON da sua credencial aqui...'
+        required
+      ></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-vc">
+      Verificar e Login
+    </button>
+  </form>
+
+  <div style="margin-top: 20px;">
+    <a href="/login" class="btn btn-primary">
+      Voltar ao Login
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Credenciais de Teste</h2>
+
+  <p>
+    Use uma das credenciais de teste pré-emitidas da pasta
+    <code>credentials/</code>:
+  </p>
+
+  <ul>
+    <li>
+      <code>alice-vc.json</code> - Credencial da Alice
+    </li>
+
+    <li>
+      <code>bob-vc.json</code> - Credencial do Bob
+    </li>
+  </ul>
+
+  <p>
+    Abra o ficheiro JSON e copie todo o seu conteúdo
+    para o formulário acima.
+  </p>
+</div>
+`
+}) %>

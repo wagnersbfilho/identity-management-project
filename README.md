@@ -175,3 +175,64 @@ GOOGLE_CLIENT_SECRET=o-seu-client-secret-aqui
 SESSION_SECRET=uma-string-secreta-aleatoria
 ```
 
+---
+## Etapa 3: Verificação de Verifiable Credentials
+
+#### Visão Geral
+
+Implementação de **autenticação com Verifiable Credentials (VCs)** permitindo que os utilizadores façam login apresentando uma credencial pré-emitida.
+
+As Verifiable Credentials são atestados digitais assinados por um Emissor sobre um Titular, que podem ser apresentados a Verificadores com prova criptográfica de autenticidade e integridade.
+
+#### Objetivos:
+
+- Implementar verificação de VCs numa aplicação web
+- Resolução de DIDs e verificação de assinaturas
+- Processar claims de verifiable credentials
+- Experienciar conceitos de identidade descentralizada
+
+#### Contexto:
+
+**Verifiable Credentials (VCs)** são um standard W3C para expressar credenciais na web de forma segura, respeitadora da privacidade e verificável por máquinas.
+
+Conceitos-Chave
+- Verifiable Credential: Claim assinada criptograficamente
+- DID: Identificador Descentralizado
+- DID Document: Contém métodos de verificação
+- Verifiable Presentation: Pacote de credenciais assinado pelo holder
+- Proof: Assinatura criptográfica garantindo autenticidade
+
+#### Como é estabelecida a confiança?
+
+O **triângulo da confiança** é um modelo envolvendo três partes, que sustenta como credenciais digitais são emitidas, compartilhadas e verificadas. Ele é a base para credenciais verificáveis e sistemas de identidade descentralizada.
+
+É chamado de triângulo porque cada papel está ligado aos outros dois, mas cada um tem uma função distinta.
+- Issuer: A entidade que cria e assina a credencial
+- Holder: A entidade que possui a credencial
+- Verifier: A entidade que solicita e verifica a credencial
+
+![Triangule](img/trust-triangule.png)
+
+#### Como isto difere de SAML/OIDC?
+Ao contrário do SAML e OIDC onde um IdP tem de estar online, as VCs permitem:
+- Verificação offline: Não é necessário contactar o issuer
+- Controlo do utilizador: Utilizador escolhe o que partilhar
+- Privacidade: Issuer não sabe quando a credencial é usada
+
+| Aspeto | Tradicional (SAML/OIDC) | Verifiable Credentials |
+|---------|-------------------------|------------------------|
+| Arquitetura | Centralizada (IdP) | Descentralizada |
+| Modelo de confiança | Issuer online | Issuer pode estar offline |
+| Privacidade | IdP vê todos os logins | Sem rastreio pelo issuer |
+| Portabilidade | Ligada ao IdP | Controlada pelo utilizador |
+| Formato | SAML XML / JWT | JSON-LD / JWT |
+
+####  O que precisaria um sistema de produção?
+
+Nesta proposta de solução, a verificação de assinatura adota uma abordagem simplificada que verifica se a prova foi criada pelo issuer esperado. Esta verificação é feita apenas pela comparação do ID do issuer *DID* com o *verificationMethod*.
+
+Em produção, é recomendado utilizar verificação criptográfica adequada:
+- Resolver o DID do issuer para obter a chave pública
+- Verifica a assinatura usando a chave pública do issuer
+
+A prova criptográfica garante que a credencial foi emitida pelo Emissor declarado e não foi alterada desde a emissão.
