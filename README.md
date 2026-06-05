@@ -1,6 +1,4 @@
-# SGI Trabalho 02
-
-Repositório do Trabalho 02 de SGGI (Sistemas de Gestão de Identidade)
+# Sistema de Gestão de Identidade
 
 Universidade Lusófona Lisboa
 
